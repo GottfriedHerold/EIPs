@@ -1,6 +1,6 @@
 This PR changes EIP-8250 (Keyed Nonces) so that binary single-use nonces, such as nullifiers, can be told apart from general sequence-number nonces, both in the transaction and in state.
 
-Background: <ethresear.ch post on Bloom filters and keyed nonces>. If binary nonces are recognisable in state, (weak) stateless nodes can keep much less nonce state as VOPS state, for example by putting spent binary keys in a Bloom filter. Fixing the distinction now means such optimizations will also apply to every binary nonce consumed before they ship.
+Background: [Bloom Filters and Keyed Nonces](https://ethresear.ch/t/bloom-filters-and-keyed-nonces/25950) on ethresear.ch. The post proposed tagging the type in the first byte of the nonce key; this PR uses a separate field instead (see History). If binary nonces are recognisable in state, (weak) stateless nodes can keep much less nonce state as VOPS state, for example by putting spent binary keys in a Bloom filter. Fixing the distinction now means such optimizations will also apply to every binary nonce consumed before they ship.
 
 ## Changes
 
