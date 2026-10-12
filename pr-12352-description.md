@@ -16,6 +16,7 @@ Background: <ethresear.ch post on Bloom filters and keyed nonces>. If binary non
 **Binary nonce semantics**
 - A binary-type transaction is valid only if `nonce_seq == 0` and every selected slot is unused.
 - Consuming a binary key writes `MAX_NONCE_SEQ`.
+- Clients MAY already reject a binary-type transaction with `nonce_seq != 0` at decoding, since it can never be valid.
 - Decoding now requires `nonce_seq < MAX_NONCE_SEQ`, so no transaction can match a slot holding `MAX_NONCE_SEQ`. A stored `MAX_NONCE_SEQ` therefore means a spent binary key or an exhausted general key. Every stored value below it belongs to a live general key, and binary slots are written exactly once.
 
 **Legacy nonce encoding**
@@ -23,6 +24,7 @@ Background: <ethresear.ch post on Bloom filters and keyed nonces>. If binary non
 - A key of `0` is invalid, so every listed key is a `NONCE_MANAGER` key.
 - `nonce_keys == []` requires `NONCETYPE_GENERAL`.
 - `TXPARAM(0x0E)` is `0` for legacy transactions. `TXPARAM(0x10)` returns `0` when the list is empty.
+- Verifier code that assumes `TXPARAM(0x01)` is the legacy account nonce now guards with `TXPARAM(0x0E) == 0` (Backwards Compatibility).
 
 **Introspection**
 - Adds `TXPARAM(0x11)`, which returns `tx.nonce_type`.
@@ -36,6 +38,7 @@ Background: <ethresear.ch post on Bloom filters and keyed nonces>. If binary non
 - Rationale explains why the type is a separate field rather than a byte of the key: it keeps the full 32-byte key space for hash outputs and field elements.
 - Rationale also explains why one type is shared by all keys.
 - Single-use applications MUST now pin `nonce_type == NONCETYPE_BINARY` (via `TXPARAM(0x11)`) in `VERIFY`, in addition to authenticating `nonce_keys_hash`.
+- Security Considerations note that the same key can be consumed once under each type, so a general-type transaction does not consume a key's binary slot.
 
 ## Out of scope
 
